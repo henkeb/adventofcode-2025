@@ -1,0 +1,8 @@
+[package]
+name = "adventofcode-2025"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+regex = "1.12.2"
+reqwest = {"0.12.24", features = ["blocking"]}
