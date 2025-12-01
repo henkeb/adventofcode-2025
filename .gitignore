@@ -24,3 +24,7 @@ target
 # Added by cargo
 
 /target
+
+# Own
+/data
+Cargo.lock
