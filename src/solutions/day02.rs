@@ -9,35 +9,64 @@ pub fn puzzle_1(input: &str) -> String {
             sum += sum_of_repeaded_num_in_range(
                 range[0].parse::<u128>().unwrap(),
                 range[1].parse::<u128>().unwrap(),
+                true,
             );
         });
     sum.to_string()
 }
 
 pub fn puzzle_2(input: &str) -> String {
-    "Not implemented yet!".to_string()
+    let mut sum = 0;
+    input
+        .replace(",\n", ",")
+        .replace("\n", "")
+        .split(',')
+        .for_each(|line| {
+            let range: Vec<&str> = line.split('-').collect();
+            sum += sum_of_repeaded_num_in_range(
+                range[0].parse::<u128>().unwrap(),
+                range[1].parse::<u128>().unwrap(),
+                false,
+            );
+        });
+    sum.to_string()
 }
 
-fn sum_of_repeaded_num_in_range(low: u128, high: u128) -> u128 {
+fn sum_of_repeaded_num_in_range(low: u128, high: u128, first: bool) -> u128 {
     let mut sum = 0;
     for i in low..=high {
-        if repeated_num(&i) {
+        if repeated_num(&i, first) {
             sum += i;
         }
     }
     sum
 }
 
-fn repeated_num(num: &u128) -> bool {
-    let digits = num.checked_ilog10().unwrap_or(0) + 1;
+fn repeated_num(num: &u128, first: bool) -> bool {
+    let digits = (num.checked_ilog10().unwrap_or(0) + 1) as usize;
 
-    let num_string = num.to_string();
-
-    // check if even number of digits
-    if digits & 1 == 0 {
-        let (left, right) = num_string.split_at((digits / 2) as usize);
-        left == right
+    let num_string: Vec<char> = num.to_string().chars().collect();
+    if first {
+        // check if even number of digits
+        if digits & 1 == 0 {
+            let (left, right) = num_string.split_at((digits / 2) as usize);
+            left == right
+        } else {
+            false
+        }
     } else {
+        for i in 1..=(digits / 2) {
+            if digits % i == 0 {
+                let d_slices: Vec<&[char]> = num_string.chunks(i).collect();
+                let equal = d_slices
+                    .iter()
+                    .skip(1)
+                    .all(|chunk| d_slices.first().unwrap() == chunk);
+                if equal {
+                    return true;
+                }
+            }
+        }
         false
     }
 }
