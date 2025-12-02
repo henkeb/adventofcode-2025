@@ -6,7 +6,7 @@ pub fn puzzle_1(input: &str) -> String {
         .split(',')
         .for_each(|line| {
             let range: Vec<&str> = line.split('-').collect();
-            sum += sum_of_repeaded_num_in_range(
+            sum += sum_of_repeated_num_in_range(
                 range[0].parse::<u128>().unwrap(),
                 range[1].parse::<u128>().unwrap(),
                 true,
@@ -23,7 +23,7 @@ pub fn puzzle_2(input: &str) -> String {
         .split(',')
         .for_each(|line| {
             let range: Vec<&str> = line.split('-').collect();
-            sum += sum_of_repeaded_num_in_range(
+            sum += sum_of_repeated_num_in_range(
                 range[0].parse::<u128>().unwrap(),
                 range[1].parse::<u128>().unwrap(),
                 false,
@@ -32,17 +32,17 @@ pub fn puzzle_2(input: &str) -> String {
     sum.to_string()
 }
 
-fn sum_of_repeaded_num_in_range(low: u128, high: u128, first: bool) -> u128 {
-    let mut sum = 0;
-    for i in low..=high {
-        if repeated_num(&i, first) {
-            sum += i;
+fn sum_of_repeated_num_in_range(low: u128, high: u128, first: bool) -> u128 {
+    (low..=high).fold(0, |sum, num| {
+        if is_repeated_num(&num, first) {
+            sum + num
+        } else {
+            sum
         }
-    }
-    sum
+    })
 }
 
-fn repeated_num(num: &u128, first: bool) -> bool {
+fn is_repeated_num(num: &u128, first: bool) -> bool {
     let digits = (num.checked_ilog10().unwrap_or(0) + 1) as usize;
 
     let num_string: Vec<char> = num.to_string().chars().collect();
