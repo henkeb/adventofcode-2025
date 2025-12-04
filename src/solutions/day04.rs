@@ -1,13 +1,13 @@
 pub fn puzzle_1(input: &str) -> String {
     let mut map = handle_input(input);
-    count_paper_and_remove(&mut map, true).to_string()
+    count_paper_and_remove(&mut map, false).to_string()
 }
 
 pub fn puzzle_2(input: &str) -> String {
     let mut map = handle_input(input);
     let mut total_paper_count = 0;
     loop {
-        match count_paper_and_remove(&mut map, false) {
+        match count_paper_and_remove(&mut map, true) {
             0 => break,
             count => total_paper_count += count,
         }
@@ -15,7 +15,7 @@ pub fn puzzle_2(input: &str) -> String {
     total_paper_count.to_string()
 }
 
-fn count_paper_and_remove(map: &mut Vec<Vec<char>>, only_count: bool) -> usize {
+fn count_paper_and_remove(map: &mut Vec<Vec<char>>, should_remove_paper: bool) -> usize {
     let row_len = map.len() as isize;
     let col_len = map[0].len() as isize;
     let mut total_paper_count = 0;
@@ -43,7 +43,7 @@ fn count_paper_and_remove(map: &mut Vec<Vec<char>>, only_count: bool) -> usize {
             }
         }
     }
-    if !only_count {
+    if should_remove_paper {
         for (x, y) in paper_positions_to_take.into_iter() {
             map[y][x] = '.';
         }
