@@ -52,11 +52,10 @@ fn count_paper_and_remove(map: &mut Vec<Vec<char>>, should_remove_paper: bool) -
 }
 
 fn handle_input(input: &str) -> Vec<Vec<char>> {
-    let mut map: Vec<Vec<char>> = Vec::new();
-    for line in input.lines() {
-        map.push(line.chars().collect());
-    }
-    map
+    input
+        .lines()
+        .map(|line| line.chars().collect::<Vec<char>>())
+        .collect()
 }
 
 const DIRECTIONS: [(isize, isize); 8] = [
