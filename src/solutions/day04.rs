@@ -7,11 +7,10 @@ pub fn puzzle_2(input: &str) -> String {
     let mut map = handle_input(input);
     let mut total_paper_count = 0;
     loop {
-        let count = count_paper_and_remove(&mut map, false);
-        if count == 0 {
-            break;
+        match count_paper_and_remove(&mut map, false) {
+            0 => break,
+            count => total_paper_count += count,
         }
-        total_paper_count += count;
     }
     total_paper_count.to_string()
 }
