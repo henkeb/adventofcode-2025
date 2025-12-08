@@ -63,8 +63,6 @@ fn solve(junction_boxes: &Vec<(i128, i128, i128)>, is_first_puzzle: bool) -> (St
 
     let mut h_map: HashMap<i128, i128> = HashMap::new();
 
-    let mut max_values: [i128; 3] = [0, 0, 0];
-
     for circuit in circuits {
         if circuit == 0 {
             continue;
@@ -75,20 +73,16 @@ fn solve(junction_boxes: &Vec<(i128, i128, i128)>, is_first_puzzle: bool) -> (St
             .or_insert(1);
     }
 
-    for (_, &v) in h_map.iter() {
-        if v > max_values[0] {
-            max_values[2] = max_values[1];
-            max_values[1] = max_values[0];
-            max_values[0] = v;
-        } else if v > max_values[1] {
-            max_values[2] = max_values[1];
-            max_values[1] = v;
-        } else if v > max_values[2] {
-            max_values[2] = v;
-        }
-    }
+    let mut sorted_circuits = h_map.iter().map(|(_, &elem)| elem).collect::<Vec<i128>>();
+    sorted_circuits.sort();
+
     (
-        max_values.iter().product::<i128>().to_string(),
+        sorted_circuits
+            .iter()
+            .rev()
+            .take(3)
+            .product::<i128>()
+            .to_string(),
         "".to_string(),
     )
 }
