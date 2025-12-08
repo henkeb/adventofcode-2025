@@ -3,11 +3,60 @@ use std::{
     collections::{BinaryHeap, HashMap},
 };
 
+pub fn puzzle_2(input: &str) -> String {
+    let junction_boxes = handle_input(input);
+    let mut circuits = vec![0; junction_boxes.len()];
+    let mut id_circuit = 0;
+    let boxes = get_closest_circuits(&junction_boxes);
+
+    for boxi in boxes.iter() {
+        let i = boxi.a;
+        let j = boxi.b;
+        match (circuits[i], circuits[j]) {
+            (0, 0) => {
+                id_circuit += 1;
+                circuits[i] = id_circuit;
+                circuits[j] = circuits[i];
+            }
+            (_, 0) => {
+                circuits[j] = circuits[i];
+            }
+            (0, _) => {
+                circuits[i] = circuits[j];
+            }
+            (_, _) => {
+                let i_circuit = circuits[i];
+                let j_circuit = circuits[j];
+
+                for circuit in circuits.iter_mut() {
+                    if *circuit == j_circuit {
+                        *circuit = i_circuit;
+                    }
+                }
+            }
+        }
+        if circuits.iter().all(|&elem| elem == circuits[0]) {
+            return (junction_boxes[boxi.a].0 * junction_boxes[boxi.b].0).to_string();
+        }
+    }
+    "".to_string()
+}
+
 pub fn puzzle_1(input: &str) -> String {
     let junction_boxes = handle_input(input);
     let mut circuits = vec![0; junction_boxes.len()];
     let mut id_circuit = 0;
-    let boxes = get_n_closest_circuits(&junction_boxes, 1000);
+    let sorted_boxes = get_closest_circuits(&junction_boxes);
+    let mut boxes = Vec::new();
+    let mut n = 0;
+    if junction_boxes.len() == 20 {
+        n = 10;
+    } else {
+        n = 1000;
+    }
+    for i in 0..n {
+        boxes.push(&sorted_boxes[i]);
+    }
     for boxi in boxes {
         let i = boxi.a;
         let j = boxi.b;
@@ -65,11 +114,7 @@ pub fn puzzle_1(input: &str) -> String {
     max_values.iter().product::<i128>().to_string()
 }
 
-fn get_n_closest_circuits(
-    junction_boxes: &Vec<(i128, i128, i128)>,
-    // circuits: &Vec<i32>,
-    n: usize,
-) -> Vec<CircuitsDistance> {
+fn get_closest_circuits(junction_boxes: &Vec<(i128, i128, i128)>) -> Vec<CircuitsDistance> {
     let mut heap = BinaryHeap::new();
 
     for (i, &(x, y, z)) in junction_boxes.iter().enumerate() {
@@ -83,17 +128,12 @@ fn get_n_closest_circuits(
                 a: i,
                 b: j,
             }));
-            // if s_distance < distance {
-            //     distance = s_distance;
-            //     closest_circuits = (i, j);
-            // }
         }
     }
+
     let mut output = Vec::new();
-    for _ in 0..n {
-        if let Some(Reverse(val)) = heap.pop() {
-            output.push(val);
-        }
+    while let Some(Reverse(val)) = heap.pop() {
+        output.push(val);
     }
     output
 }
@@ -115,11 +155,6 @@ impl PartialOrd for CircuitsDistance {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(&other))
     }
-}
-
-pub fn puzzle_2(input: &str) -> String {
-    let _ = handle_input(input);
-    "Not implemented yet!".to_string()
 }
 
 fn handle_input(input: &str) -> Vec<(i128, i128, i128)> {
