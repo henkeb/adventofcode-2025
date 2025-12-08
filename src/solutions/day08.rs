@@ -3,15 +3,33 @@ use std::{
     collections::{BinaryHeap, HashMap},
 };
 
+pub fn puzzle_1(input: &str) -> String {
+    let junction_boxes = handle_input(input);
+    solve(&junction_boxes, true).0
+}
+
 pub fn puzzle_2(input: &str) -> String {
     let junction_boxes = handle_input(input);
+    solve(&junction_boxes, false).1
+}
+
+#[allow(unused_assignments)]
+fn solve(junction_boxes: &Vec<(i128, i128, i128)>, is_first_puzzle: bool) -> (String, String) {
     let mut circuits = vec![0; junction_boxes.len()];
     let mut id_circuit = 0;
-    let boxes = get_closest_circuits(&junction_boxes);
-
-    for boxi in boxes.iter() {
-        let i = boxi.a;
-        let j = boxi.b;
+    let sorted_boxes = get_closest_circuits(&junction_boxes);
+    let mut n = 0;
+    if is_first_puzzle {
+        if junction_boxes.len() == 20 {
+            n = 10;
+        } else {
+            n = 1000;
+        }
+    } else {
+        n = sorted_boxes.len();
+    }
+    for boxi in sorted_boxes[..n].iter() {
+        let (i, j) = (boxi.a, boxi.b);
         match (circuits[i], circuits[j]) {
             (0, 0) => {
                 id_circuit += 1;
@@ -36,52 +54,10 @@ pub fn puzzle_2(input: &str) -> String {
             }
         }
         if circuits.iter().all(|&elem| elem == circuits[0]) {
-            return (junction_boxes[boxi.a].0 * junction_boxes[boxi.b].0).to_string();
-        }
-    }
-    "".to_string()
-}
-
-pub fn puzzle_1(input: &str) -> String {
-    let junction_boxes = handle_input(input);
-    let mut circuits = vec![0; junction_boxes.len()];
-    let mut id_circuit = 0;
-    let sorted_boxes = get_closest_circuits(&junction_boxes);
-    let mut boxes = Vec::new();
-    let mut n = 0;
-    if junction_boxes.len() == 20 {
-        n = 10;
-    } else {
-        n = 1000;
-    }
-    for i in 0..n {
-        boxes.push(&sorted_boxes[i]);
-    }
-    for boxi in boxes {
-        let i = boxi.a;
-        let j = boxi.b;
-        match (circuits[i], circuits[j]) {
-            (0, 0) => {
-                id_circuit += 1;
-                circuits[i] = id_circuit;
-                circuits[j] = circuits[i];
-            }
-            (_, 0) => {
-                circuits[j] = circuits[i];
-            }
-            (0, _) => {
-                circuits[i] = circuits[j];
-            }
-            (_, _) => {
-                let i_circuit = circuits[i];
-                let j_circuit = circuits[j];
-
-                for circuit in circuits.iter_mut() {
-                    if *circuit == j_circuit {
-                        *circuit = i_circuit;
-                    }
-                }
-            }
+            return (
+                "".to_string(),
+                (junction_boxes[boxi.a].0 * junction_boxes[boxi.b].0).to_string(),
+            );
         }
     }
 
@@ -111,20 +87,21 @@ pub fn puzzle_1(input: &str) -> String {
             max_values[2] = v;
         }
     }
-    max_values.iter().product::<i128>().to_string()
+    (
+        max_values.iter().product::<i128>().to_string(),
+        "".to_string(),
+    )
 }
 
 fn get_closest_circuits(junction_boxes: &Vec<(i128, i128, i128)>) -> Vec<CircuitsDistance> {
     let mut heap = BinaryHeap::new();
 
     for (i, &(x, y, z)) in junction_boxes.iter().enumerate() {
-        for (j, &(x_2, y_2, z_2)) in junction_boxes.iter().enumerate().skip(i) {
-            if x == x_2 && y == y_2 && z == z_2 {
-                continue;
-            }
-            let s_distance = ((x - x_2).pow(2) + (y - y_2).pow(2) + (z - z_2).pow(2)).isqrt();
+        for (j, &(x_2, y_2, z_2)) in junction_boxes.iter().enumerate().skip(i + 1) {
+            let euclidian_distance =
+                ((x - x_2).pow(2) + (y - y_2).pow(2) + (z - z_2).pow(2)).isqrt();
             heap.push(Reverse(CircuitsDistance {
-                distance: s_distance,
+                euclidian_distance,
                 a: i,
                 b: j,
             }));
@@ -140,14 +117,14 @@ fn get_closest_circuits(junction_boxes: &Vec<(i128, i128, i128)>) -> Vec<Circuit
 
 #[derive(Eq, PartialEq)]
 struct CircuitsDistance {
-    distance: i128,
+    euclidian_distance: i128,
     a: usize,
     b: usize,
 }
 
 impl Ord for CircuitsDistance {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.distance.cmp(&other.distance)
+        self.euclidian_distance.cmp(&other.euclidian_distance)
     }
 }
 
