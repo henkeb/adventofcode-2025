@@ -69,7 +69,7 @@ pub fn puzzle_2(input: &str) -> String {
             output += opt
                 .get_model()
                 .unwrap()
-                .eval(&button_presses, true)
+                .eval(&button_presses, false)
                 .unwrap()
                 .as_u64()
                 .unwrap();
